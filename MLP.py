@@ -12,8 +12,15 @@ def sigmoid_prime(z):
 #Red neuronal multicapa (MLP)
 class MLP:
     def __init__(self, X, n_hidden, n_output):
-        a=a
-    
+        n_features = X.shape[1]
+
+        #Pesos de la capa oculta
+        self.W1=np.random.randn(n_features,n_hidden)
+        self.b1=np.zeros((1,n_hidden))
+        #Pesos de la capa de salida
+        self.W2=np.random.randn(n_hidden,n_output)
+        self.b2=np.zeros((1,n_output))
+        
     #Paso hacia delante
     def forward(self, X):
         a=a
