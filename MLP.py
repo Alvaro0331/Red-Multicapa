@@ -20,11 +20,16 @@ class MLP:
         #Pesos de la capa de salida
         self.W2=np.random.randn(n_hidden,n_output)
         self.b2=np.zeros((1,n_output))
-        
+
     #Paso hacia delante
     def forward(self, X):
-        a=a
-    
+        #Capa oculta
+        self.Z1=np.dot(X,self.W1) + self.b1
+        self.A1=sigmoid(self.Z1)
+        #Capa de salida
+        self.Z2=np.dot(self.A1,self.W2) + self.b2
+        self.A2=sigmoid(self.Z2)
+        
     #Paso hacia atrás
     def backward(self, X, y):
         a=a
