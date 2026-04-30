@@ -38,14 +38,31 @@ class MLP:
         error= y-self.A2
         #Retropropagacion del error
         d_A2=error*sigmoid_prime(self.Z2)
-        d_Z2=np.dot(d_A2,self.W2.T)*sigmoid_prime(self.Z1)
+        d_Z1=np.dot(d_A2,self.W2.T)*sigmoid_prime(self.Z1)
         #Actualizar pesos y bias
-        self.W2+=np.dot(d_A2,self.A1.T)*learning_rate
+        self.W2+=np.dot(self.A1.T,d_A2)*learning_rate
         self.b2+=np.sum(d_A2,axis=0,keepdims=True)*learning_rate
 
-        self.W1+=np.dot(d_Z2,X.T)*learning_rate
-        self.b1+=np.sum(d_Z2,axis=0,keepdims=True)*learning_rate
+        self.W1+=np.dot(X.T,d_Z1)*learning_rate
+        self.b1+=np.sum(d_Z1,axis=0,keepdims=True)*learning_rate
 
     #Entrenamiento
-    def train(self, X, y, epochs=200):
-        a=a
+    def train(self, X, y, learning_rate, epochs):
+        for epoch in range(epochs):
+            y_pred=self.forward(X)
+            self.backward(X, y, learning_rate)
+            if epoch % 4000 == 0:
+                loss = np.mean(np.square(y - y_pred))
+                print(f"Epoch {epoch}, Loss:{loss}")
+
+
+#Test
+X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+y = np.array([[0], [1], [1], [0]])
+
+nn = MLP(X, n_hidden=3, n_output=1)
+nn.train(X, y, learning_rate=0.1, epochs=10000)
+
+output = nn.forward(X)
+print("Predictions after training:")
+print(output)
