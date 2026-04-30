@@ -29,10 +29,22 @@ class MLP:
         #Capa de salida
         self.Z2=np.dot(self.A1,self.W2) + self.b2
         self.A2=sigmoid(self.Z2)
-        
+
+        return self.A2
+    
     #Paso hacia atrás
-    def backward(self, X, y):
-        a=a
+    def backward(self, X, y, learning_rate):
+        #Calcular error
+        error= y-self.A2
+        #Retropropagacion del error
+        d_A2=error*sigmoid_prime(self.Z2)
+        d_Z2=np.dot(d_A2,self.W2.T)*sigmoid_prime(self.Z1)
+        #Actualizar pesos y bias
+        self.W2+=np.dot(d_A2,self.A1.T)*learning_rate
+        self.b2+=np.sum(d_A2,axis=0,keepdims=True)*learning_rate
+
+        self.W1+=np.dot(d_Z2,X.T)*learning_rate
+        self.b1+=np.sum(d_Z2,axis=0,keepdims=True)*learning_rate
 
     #Entrenamiento
     def train(self, X, y, epochs=200):
