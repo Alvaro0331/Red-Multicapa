@@ -28,5 +28,24 @@ def crear_figura():
     return fig, ax
 
 
+#Creacion de los widgets
+def crear_widgets(fig):
+    #Texto de clase
+    class0Text=ax.text(0.75, 0.6, "Click izquierdo:", transform=fig.transFigure, fontsize=10, color='black')
+    class0Text = ax.annotate(" Clase 0",xycoords=(class0Text),xy=(1, 0), verticalalignment='bottom', fontsize=10, color='blue')
+    class1Text=ax.text(0.75, 0.5, "Click derecho:", transform=fig.transFigure, fontsize=10, color='black')
+    class1Text = ax.annotate(" Clase 1",xycoords=(class1Text),xy=(1, 0), verticalalignment='bottom', fontsize=10, color='red')
+    
+    # Botones
+    plotButton=widgets.Button(plt.axes([0.75, 0.3, 0.1, 0.15]), 'Train', color='lightblue', hovercolor='skyblue')
+    clearButton=widgets.Button(plt.axes([0.75, 0.2, 0.1, 0.05]), 'Clear', color='lightcoral', hovercolor='salmon')
+    
+    return plotButton, clearButton
+
+
+
+
+
 fig, ax = crear_figura()
+plotButton, clearButton = crear_widgets(fig)
 plt.show()
