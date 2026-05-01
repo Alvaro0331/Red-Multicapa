@@ -32,21 +32,25 @@ def crear_figura():
 #Creacion de los widgets
 def crear_widgets(fig):
     #Texto de clase
-    class0Text=ax.text(0.75, 0.9, "Click izquierdo:", transform=fig.transFigure, fontsize=10, color='black')
+    class0Text=ax.text(0.75, 0.85, "Click izquierdo:", transform=fig.transFigure, fontsize=10, color='black')
     class0Text = ax.annotate(" Clase A",xycoords=(class0Text),xy=(1, 0), verticalalignment='bottom', fontsize=10, color='blue')
     class1Text=ax.text(0.75, 0.8, "Click derecho:", transform=fig.transFigure, fontsize=10, color='black')
     class1Text = ax.annotate(" Clase B",xycoords=(class1Text),xy=(1, 0), verticalalignment='bottom', fontsize=10, color='red')
     
+    #TextBoxs
+    LRBox=widgets.TextBox(plt.axes([0.85, 0.7, 0.1, 0.05]), 'Learning Rate:', initial="0.01")
+    NumNeuronsBox=widgets.TextBox(plt.axes([0.85, 0.6, 0.1, 0.05]), '# de neuronas:', initial="3")
+
     #RaddioButton para seleccionar dataset
-    radioAx=plt.axes([0.75, 0.4, 0.1, 0.15])
+    radioAx=plt.axes([0.75, 0.35, 0.1, 0.15])
     radioAx.set_title("Dataset", fontsize=10)
     radioDataset=widgets.RadioButtons(radioAx,('Custom', 'Option 1', 'Option 2'))
 
     # Botones
-    plotButton=widgets.Button(plt.axes([0.75, 0.2, 0.1, 0.15]), 'Train', color='lightblue', hovercolor='skyblue')
-    clearButton=widgets.Button(plt.axes([0.75, 0.1, 0.1, 0.05]), 'Clear', color='lightcoral', hovercolor='salmon')
+    plotButton=widgets.Button(plt.axes([0.75, 0.17, 0.1, 0.15]), 'Train', color='lightblue', hovercolor='skyblue')
+    clearButton=widgets.Button(plt.axes([0.75, 0.10, 0.1, 0.05]), 'Clear', color='lightcoral', hovercolor='salmon')
     
-    return plotButton, clearButton, radioDataset
+    return plotButton, clearButton, radioDataset, NumNeuronsBox, LRBox
 
 
 #Colocar puntos
@@ -130,7 +134,7 @@ def dataset(label):
     fig.canvas.draw()  # Actualiza la figura para mostrar los nuevos puntos
 
 fig, ax = crear_figura()
-plotButton, clearButton, radioDataset = crear_widgets(fig)
+plotButton, clearButton, radioDataset, NumNeuronsBox, LRBox = crear_widgets(fig)
 fig.canvas.mpl_connect('button_press_event', onclick)
 clearButton.on_clicked(clear)
 radioDataset.on_clicked(dataset)
