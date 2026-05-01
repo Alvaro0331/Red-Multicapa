@@ -32,16 +32,21 @@ def crear_figura():
 #Creacion de los widgets
 def crear_widgets(fig):
     #Texto de clase
-    class0Text=ax.text(0.75, 0.6, "Click izquierdo:", transform=fig.transFigure, fontsize=10, color='black')
-    class0Text = ax.annotate(" Clase 0",xycoords=(class0Text),xy=(1, 0), verticalalignment='bottom', fontsize=10, color='blue')
-    class1Text=ax.text(0.75, 0.5, "Click derecho:", transform=fig.transFigure, fontsize=10, color='black')
-    class1Text = ax.annotate(" Clase 1",xycoords=(class1Text),xy=(1, 0), verticalalignment='bottom', fontsize=10, color='red')
+    class0Text=ax.text(0.75, 0.9, "Click izquierdo:", transform=fig.transFigure, fontsize=10, color='black')
+    class0Text = ax.annotate(" Clase A",xycoords=(class0Text),xy=(1, 0), verticalalignment='bottom', fontsize=10, color='blue')
+    class1Text=ax.text(0.75, 0.8, "Click derecho:", transform=fig.transFigure, fontsize=10, color='black')
+    class1Text = ax.annotate(" Clase B",xycoords=(class1Text),xy=(1, 0), verticalalignment='bottom', fontsize=10, color='red')
     
+    #RaddioButton para seleccionar dataset
+    radioAx=plt.axes([0.75, 0.4, 0.1, 0.15])
+    radioAx.set_title("Dataset", fontsize=10)
+    radioDataset=widgets.RadioButtons(radioAx,('Custom', 'Option 1', 'Option 2'))
+
     # Botones
-    plotButton=widgets.Button(plt.axes([0.75, 0.3, 0.1, 0.15]), 'Train', color='lightblue', hovercolor='skyblue')
-    clearButton=widgets.Button(plt.axes([0.75, 0.2, 0.1, 0.05]), 'Clear', color='lightcoral', hovercolor='salmon')
+    plotButton=widgets.Button(plt.axes([0.75, 0.2, 0.1, 0.15]), 'Train', color='lightblue', hovercolor='skyblue')
+    clearButton=widgets.Button(plt.axes([0.75, 0.1, 0.1, 0.05]), 'Clear', color='lightcoral', hovercolor='salmon')
     
-    return plotButton, clearButton
+    return plotButton, clearButton, radioDataset
 
 
 #Colocar puntos
@@ -87,8 +92,46 @@ def clear_line():
     fig.canvas.draw()  # Actualiza la figura para reflejar los cambios
 
 
+#Añadir puntos en base al dataset seleccionado
+def dataset(label):
+    clear(None) # Limpia los puntos y la línea de decisión antes de cargar el nuevo dataset
+    rng = np.random.default_rng(42)
+    if label == 'Option 1':
+        # Dataset 1: XOR — Clase 0 en Q1 y Q3, Clase 1 en Q2 y Q4
+        q1 = rng.uniform(1, 8, (20, 2))
+        q3 = rng.uniform(-8, -1, (20, 2))
+        class0 = np.vstack([q1, q3])
+        q2 = np.column_stack([rng.uniform(-8, -1, 20), rng.uniform(1, 8, 20)])
+        q4 = np.column_stack([rng.uniform(1, 8, 20), rng.uniform(-8, -1, 20)])
+        class1 = np.vstack([q2, q4])
+        puntos_dataset = [tuple(p) for p in np.vstack([class0, class1])]
+        etiquetas_dataset = [0] * 40 + [1] * 40
+    elif label == 'Option 2':
+        # Dataset 2: Anillos — Clase 0 en círculo interior, Clase 1 en anillo exterior
+        angles0 = rng.uniform(0, 2 * np.pi, 40)
+        radii0 = rng.uniform(0.5, 3.5, 40)
+        class0 = np.column_stack([radii0 * np.cos(angles0), radii0 * np.sin(angles0)])
+        angles1 = rng.uniform(0, 2 * np.pi, 40)
+        radii1 = rng.uniform(5.5, 9.0, 40)
+        class1 = np.column_stack([radii1 * np.cos(angles1), radii1 * np.sin(angles1)])
+        puntos_dataset = [tuple(p) for p in np.vstack([class0, class1])]
+        etiquetas_dataset = [0] * 40 + [1] * 40
+    else:
+        # Custom dataset
+        return
+    # Agrega los puntos del dataset a la figura
+    for (x,y), etiqueta in zip(puntos_dataset, etiquetas_dataset):
+        color = 'bo' if etiqueta == 0 else 'ro'
+        marker, = ax.plot(x, y, color)
+        puntos.append((x, y))
+        markers.append(marker)
+        etiquetas.append(etiqueta)
+    
+    fig.canvas.draw()  # Actualiza la figura para mostrar los nuevos puntos
+
 fig, ax = crear_figura()
-plotButton, clearButton = crear_widgets(fig)
+plotButton, clearButton, radioDataset = crear_widgets(fig)
 fig.canvas.mpl_connect('button_press_event', onclick)
 clearButton.on_clicked(clear)
+radioDataset.on_clicked(dataset)
 plt.show()
