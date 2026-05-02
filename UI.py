@@ -91,8 +91,8 @@ def clear(event):
 #Limpiar linea de decision
 def clear_line():
     for linea in lineas:
-        linea.remove()  # Elimina la línea de la figura
-    lineas.clear()  # Reinicia la lista de líneas
+        linea.remove()  # Elimina el contorno de la figura
+    lineas.clear()  # Reinicia la lista de contornos
     fig.canvas.draw()  # Actualiza la figura para reflejar los cambios
 
 
@@ -133,9 +133,37 @@ def dataset(label):
     
     fig.canvas.draw()  # Actualiza la figura para mostrar los nuevos puntos
 
+
+#Entrenar el modelo y dibujar la frontera de decisión
+def train(event):
+    X=np.array(puntos, dtype=np.float32)
+    d=np.array(etiquetas, dtype=np.float32).reshape(-1, 1)
+    LR=float(LRBox.text)
+    NumNeurons=int(NumNeuronsBox.text)
+    if len(X) < 2:
+        return
+    
+    mlp = model.MLP(X, n_hidden=NumNeurons, n_output=1)
+    mlp.train(X, d, LR, epochs=10000)
+
+    clear_line()
+
+    # Meshgrid para la frontera de decisión
+    xs = np.linspace(-10, 10, 200)
+    ys = np.linspace(-10, 10, 200)
+    xx, yy = np.meshgrid(xs, ys)
+    grid = np.c_[xx.ravel(), yy.ravel()].astype(np.float32)
+    Z = mlp.forward(grid).reshape(xx.shape)
+
+    contorno = ax.contour(xx, yy, Z, levels=[0.5], colors='green')
+    lineas.append(contorno)
+    fig.canvas.draw()
+
+
 fig, ax = crear_figura()
 plotButton, clearButton, radioDataset, NumNeuronsBox, LRBox = crear_widgets(fig)
 fig.canvas.mpl_connect('button_press_event', onclick)
 clearButton.on_clicked(clear)
 radioDataset.on_clicked(dataset)
+plotButton.on_clicked(train)
 plt.show()

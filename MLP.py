@@ -48,15 +48,15 @@ class MLP:
 
     #Entrenamiento
     def train(self, X, y, learning_rate, epochs):
+        self.history = []
         for epoch in range(epochs):
             y_pred=self.forward(X)
             self.backward(X, y, learning_rate)
-            if epoch % 4000 == 0:
-                loss = np.mean(np.square(y - y_pred))
-                print(f"Epoch {epoch}, Loss:{loss}")
+            loss = np.mean(np.square(y - y_pred))
+            self.history.append(loss)
 
 
-#Test
+""" #Test
 X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
 y = np.array([[0], [1], [1], [0]])
 
@@ -65,4 +65,4 @@ nn.train(X, y, learning_rate=0.1, epochs=10000)
 
 output = nn.forward(X)
 print("Predictions after training:")
-print(output)
+print(output) """
