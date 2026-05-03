@@ -53,7 +53,15 @@ class MLP:
             y_pred=self.forward(X)
             self.backward(X, y, learning_rate)
             loss = np.mean(np.square(y - y_pred))
-            self.history.append(loss)
+            if epoch % 1000 == 0:
+                self.history.append({
+                    'epoch': epoch,
+                    'loss': loss,
+                    'W1': self.W1.copy(),
+                    'b1': self.b1.copy(),
+                    'W2': self.W2.copy(),
+                    'b2': self.b2.copy(),
+                })
 
 
 """ #Test

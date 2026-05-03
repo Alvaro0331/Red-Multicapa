@@ -3,6 +3,7 @@ import matplotlib.widgets as widgets
 import MLP as model
 import numpy as np
 from matplotlib.backend_bases import MouseButton
+from matplotlib.animation import FuncAnimation
 
 
 # Creacion de la figura
@@ -58,6 +59,7 @@ puntos=[]
 markers=[]
 etiquetas=[]
 lineas=[]
+contorno_actual=[]
 def onclick(event):
     if event.inaxes == ax:
         if event.button is MouseButton.LEFT:
@@ -90,8 +92,15 @@ def clear(event):
 
 #Limpiar linea de decision
 def clear_line():
+    for c in contorno_actual:
+        c.remove()
+    contorno_actual.clear()
     for linea in lineas:
-        linea.remove()  # Elimina el contorno de la figura
+        if isinstance(linea, FuncAnimation):  # Si el contorno es una animación (FuncAnimation)
+            if linea.event_source is not None:
+                linea.event_source.stop()  # Detiene la animación
+        else:
+            linea.remove()  # Elimina el contorno de la figura
     lineas.clear()  # Reinicia la lista de contornos
     fig.canvas.draw()  # Actualiza la figura para reflejar los cambios
 
@@ -136,10 +145,14 @@ def dataset(label):
 
 #Entrenar el modelo y dibujar la frontera de decisión
 def train(event):
+    clear_line()  # Limpia la línea de decisión antes de entrenar el modelo
     X=np.array(puntos, dtype=np.float32)
     d=np.array(etiquetas, dtype=np.float32).reshape(-1, 1)
     LR=float(LRBox.text)
     NumNeurons=int(NumNeuronsBox.text)
+    global contorno_actual
+    contorno_actual=[]
+
     if len(X) < 2:
         return
     
@@ -153,10 +166,31 @@ def train(event):
     ys = np.linspace(-10, 10, 200)
     xx, yy = np.meshgrid(xs, ys)
     grid = np.c_[xx.ravel(), yy.ravel()].astype(np.float32)
-    Z = mlp.forward(grid).reshape(xx.shape)
 
-    contorno = ax.contour(xx, yy, Z, levels=[0.5], colors='green')
-    lineas.append(contorno)
+    def update(frame):
+        epoch_data = mlp.history[frame]
+        mlp.W1 = epoch_data['W1']
+        mlp.b1 = epoch_data['b1']
+        mlp.W2 = epoch_data['W2']
+        mlp.b2 = epoch_data['b2']
+
+        #Eliminar contorno anterior
+        if contorno_actual:
+            contorno_actual[0].remove()  # contourf
+            contorno_actual[1].remove()  # contour
+            contorno_actual.clear()
+        
+        #Dibujar regiones y frontera
+        Z = mlp.forward(grid).reshape(xx.shape)
+        cf = ax.contourf(xx, yy, Z, levels=[0, 0.5, 1], colors=['#AACCFF', '#FFAAAA'], alpha=0.4)
+        c = ax.contour(xx, yy, Z, levels=[0.5], colors='green')
+        contorno_actual.append(cf)
+        contorno_actual.append(c)
+
+        ax.set_title(f"Epoch: {epoch_data['epoch']}, Loss: {epoch_data['loss']:.4f}")
+
+    anim = FuncAnimation(fig, update, frames=len(mlp.history), interval=50,repeat=False)
+    lineas.append(anim)
     fig.canvas.draw()
 
 
